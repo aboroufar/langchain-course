@@ -25,7 +25,19 @@ load_dotenv()
     #"""
     #print(f"searching for: {query}")
     #return tavily.search(query=query, num_results=1)
+class Source(BaseModel):
+    """Schema for a source used by the agent"""
 
+    url: str = Field(description="The URL of the source")
+
+
+class AgentResponse(BaseModel):
+    """Schema for agent response with answer and sources"""
+
+    answer: str = Field(description="Thr agent's answer to the query")
+    sources: List[Source] = Field(
+        default_factory=list, description="List of sources used to generate the answer"
+    )
 
 if "ANTHROPIC_API_KEY" not in os.environ:
     os.environ["ANTHROPIC_API_KEY"] = getpass()
@@ -37,7 +49,7 @@ llm = ChatAnthropic(
 search_tool = TavilySearch(max_results=1)
 tools = [search_tool]
 #tools = [search]
-agent = create_agent(model=llm, tools=tools)
+agent = create_agent(model=llm, tools=tools, response_format=AgentResponse)
 
 
 def main():
