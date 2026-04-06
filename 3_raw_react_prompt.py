@@ -41,6 +41,18 @@ tools = {
 # CHANGE 3: Delete the JSON schemas. Tools now live inside the prompt as plain text.
 # We derive descriptions from the functions themselves using inspect.
 
+
+##This specific function is the "Prompt Engineer" of your script. It automates the process of telling the LLM what 
+# it can do and how to do it.
+##While you could hard-code these descriptions into your prompt string, this function is "necessary" if you want a 
+# professional, maintainable agent. Here is the breakdown of why this logic is so clever (and a small catch with your current setup):
+##1. The __wrapped__ Trick (The "Why")
+##When you use @traceable(run_type="tool"), LangSmith wraps your function in its own code. If you tried to inspect 
+# the signature of the wrapped function, you might see something like:
+##get_product_price(*args, **kwargs) or get_product_price(*, config=None, ...)
+##By using getattr(tool_function, "__wrapped__", tool_function), you are "peeling back the onion" to get the original function you wrote. This ensures the LLM sees:
+
+get_product_price(product: str)
 def get_tool_descriptions(tools_dict):
     descriptions = []
     for tool_name, tool_function in tools_dict.items():
@@ -90,8 +102,6 @@ Thought:"""
 @traceable(name="Ollama Chat", run_type="llm")
 def ollama_chat_traced(model, messages, options):
     return ollama.chat(model=model, messages=messages, options=options)
-
-
 
 
 

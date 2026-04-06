@@ -86,6 +86,15 @@ def run_agent(question: str):
         tool_call_id = tool_call.get("id")
 
         print(f"  [Tool Selected] {tool_name} with args: {tool_args}")
+        
+        ###1. It bridges the gap between LLM "intent" and Python "action"
+        ###When the LLM decides to use a tool, it doesn't actually run any Python code. It simply returns a piece of text (JSON) that says:
+        ##"I want to use the tool named 'get_product_price' with the argument 'laptop'."
+        ###The tools_dict is your lookup table. Without it, your code wouldn't know which Python function matches the string name "get_product_price" returned by the model.
+
+       ###If you use LangGraph or LangChain’s high-level create_react_agent helper, they handle this dictionary creation 
+       ###behind the scenes for you. But since you are building a manual agent loop, you have to handle that mapping yourself.
+       
 
         tool_to_use = tools_dict.get(tool_name)
         if tool_to_use is None:
